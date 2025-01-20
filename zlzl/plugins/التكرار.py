@@ -19,15 +19,18 @@ from ..sql_helper.echo_sql import addecho, get_all_echos, get_echos, is_echo, re
 from . import BOTLOG, BOTLOG_CHATID
 
 plugin_category = "الخدمات"
+
+"""
 SPAM = gvarstatus("Z_SPAM") or "(مؤقت|مكرر)"
 UNSPAM = gvarstatus("Z_UNSPAM") or "(ايقاف مؤقت|ايقاف مكرر)"
+"""
 
 ZelzalSP_cmd = (
     "𓆩 [𝗦𝗼𝘂𝗿𝗰𝗲 𝗭𝗧𝗵𝗼𝗻 - اوامـر السبـام والتكـرار](t.me/ZThon) 𓆪\n\n"
     "`.كرر` + عـدد + كلمـه\n"
     "**⪼ لـ تكـرار كلمـه معينـه لعـدد معيـن من المـرات**\n\n"
-    "`.مكرر` + الوقت بالثواني + العدد + النص\n"
-    "**⪼ لـ تكـرار نص لوقت معين وعدد معين من المـرات**\n"
+    "`.اوامر مكرر`\n"
+    "**⪼ لـ عـرض اوامـر النشـر التلقائـي (.مكرر) المحدثه بدون بانـد**\n"
     "**⪼ الامر يفيد جماعة الاعلانات وكروبات الشراء**\n\n"
     "`.تكرار ملصق`\n"
     "**⪼ لـ تكـرار ملصقـات من حزمـه معينـه**\n\n"
@@ -308,7 +311,7 @@ async def tmeme(event):
                 + f"**- تم تنفيـذ التڪـرار بواسطـة الڪلمات في   :** {get_display_name(await event.get_chat())}(`{event.chat_id}`) **الدردشة مع :** `{message}`",
             )
 
-
+"""
 @zedub.zed_cmd(pattern=f"{SPAM} ([\s\S]*)")
 async def spammer(event):
     return await edit_or_reply(event, "**- امـر (.مكرر) متوقف للصيانه ...🚧**\n\n**- استخدم اوامر السوبر المحدثه (متخطية الحظر) ☑️**\n**- ارسـل (.مساعده) ثم زر اوامـر السوبرات 🎡**")
@@ -322,7 +325,7 @@ async def spammer(event):
     await event.delete()
     addgvar("spamwork", True)
     await spam_function(event, reply, zed, sleeptimem, sleeptimet, DelaySpam=True)
-
+"""
 
 @zedub.zed_cmd(pattern="تعبير مكرر$")
 async def react_spam(event):
@@ -375,14 +378,14 @@ async def stopspamrz(event):
         return await edit_delete(event, "**- تم ايقـاف التڪـرار .. بنجـاح ✅**")
     return await edit_delete(event, "**- لايوجـد هنـاك تڪرار لـ إيقافه ؟!**")
 
-
+"""
 @zedub.zed_cmd(pattern=f"{UNSPAM} ?(.*)")
 async def spammer(event):
     reply = await event.get_reply_message()
     await event.delete()
     delgvar("spamwork")
     await spam_function(event, reply, sleeptimem, sleeptimet, DelaySpam=False)
-
+"""
 
 
 # Copyright (C) 2022 Zed-Thon . All Rights Reserved
