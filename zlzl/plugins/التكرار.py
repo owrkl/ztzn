@@ -138,7 +138,7 @@ async def spam_mokrr(event, sandy, zed, sleeptimem, sleeptimet, DelaySpam=False)
 
 @zedub.zed_cmd(pattern=f"{SPAM} ([\s\S]*)")
 async def spammer(event):
-    return await edit_or_reply(event, "**- امـر (.مكرر) متوقف للصيانه ...🚧**\n\n**- استخدم اوامر السوبر المحدثه (متخطية الحظر) ☑️**\n**- ارسـل (.مساعده) ثم زر اوامـر السوبرات 🎡**")
+    #return await edit_or_reply(event, "**- امـر (.مكرر) متوقف للصيانه ...🚧**\n\n**- استخدم اوامر السوبر المحدثه (متخطية الحظر) ☑️**\n**- ارسـل (.مساعده) ثم زر اوامـر السوبرات 🎡**")
     reply = await event.get_reply_message()
     input_str = "".join(event.text.split(maxsplit=1)[1:]).split(" ", 2)
     try:
