@@ -11,6 +11,12 @@ from .helpers.functions.musictool import *
 from .helpers.utils.utils import runasync
 from .sql_helper.globals import addgvar, delgvar, gvarstatus
 
+
+PM_LOGGER_GROUP_ID=int(os.environ.get("PM_LOGGER_GROUP_ID"))
+BOTLOG_CHATID=int(os.environ.get("BOTLOG_CHATID"))
+PRIVATE_GROUP_BOT_API_ID=int(os.environ.get("PRIVATE_GROUP_BOT_API_ID"))
+
+
 __version__ = "3.3.4"
 __license__ = "حقـوق سـورس زدثــون"
 __author__ = "زدثــون <https://T.me/ZThon>"
