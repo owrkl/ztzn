@@ -89,6 +89,7 @@ async def upstream(event):
         )
     event = await edit_or_reply(event, f"ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - تحـديث زدثــون\n**•─────────────────•**\n\n**⪼ يتم تنصيب التحديث  انتظر 🌐 ،**")
     off_repo = "https://github.com/ZThon-Back/ZUp"
+    os.makedirs("app")
     os.chdir("app")
     try:
         txt = (
