@@ -1,64 +1,23 @@
 import asyncio
-import contextlib
 import os
 import sys
-from asyncio.exceptions import CancelledError
-from time import sleep
-
 from git import Repo
 from git.exc import GitCommandError, InvalidGitRepositoryError, NoSuchPathError
 
-from . import UPSTREAM_REPO_URL, zedub
-
+from . import zedub
 from ..Config import Config
-from ..core.logger import logging
 from ..core.managers import edit_delete, edit_or_reply
-from ..helpers.utils import _zedutils
-from ..sql_helper.global_collection import (
-    add_to_collectionlist,
-    del_keyword_collectionlist,
-    get_collectionlist_items,
-)
 
-plugin_category = "الادوات"
 cmdhd = Config.COMMAND_HAND_LER
-ENV = bool(os.environ.get("ENV", False))
-LOGS = logging.getLogger(__name__)
-# -- Constants -- #
-
-OLDZED = Config.OLDZED
-
-UPSTREAM_REPO_BRANCH = "master"
-
-REPO_REMOTE_NAME = "temponame"
-IFFUCI_ACTIVE_BRANCH_NAME = "master"
-IS_SELECTED_DIFFERENT_BRANCH = (
-    "looks like a custom branch {branch_name} "
-    "is being used:\n"
-    "in this case, Updater is unable to identify the branch to be updated."
-    "please check out to an official branch, and re-start the updater."
-)
-
-# -- Constants End -- #
-
-requirements_path = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "requirements.txt"
-)
-
-
-async def gen_chlog(repo, diff):
-    d_form = "%d/%m/%y"
-    return "".join(
-        f"  • {c.summary} ({c.committed_datetime.strftime(d_form)}) <{c.author}>\n"
-        for c in repo.iter_commits(diff)
-    )
+OFF_REPO_URL = "https://github.com/ZThon-Back/ZUp"
+REPO_PATH = os.path.join(os.getcwd(), "app")
 
 
 async def update_requirements():
-    reqs = str(requirements_path)
+    """Update Python requirements."""
     try:
         process = await asyncio.create_subprocess_shell(
-            " ".join([sys.executable, "-m", "pip", "install", "-r", reqs]),
+            f"{sys.executable} -m pip install -r requirements.txt",
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
@@ -68,73 +27,82 @@ async def update_requirements():
         return repr(e)
 
 
+async def show_progress(event, current, total):
+    """Show the progress bar."""
+    progress = int((current / total) * 100)
+    bar = "▬" * (progress // 10) + "▭" * (10 - (progress // 10))
+    await event.edit(
+        f"ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - تحـديث زدثــون\n"
+        "**•─────────────────•**\n\n"
+        f"⇜ يتـم تحـديث بـوت زدثــون .. انتظـر . . .🌐\n\n"
+        f"%{progress} {bar}"
+    )
+
+
 async def update_bot(event, repo, ups_rem, ac_br):
+    """Pull updates from the repository and reload the bot."""
     try:
         ups_rem.pull(ac_br)
     except GitCommandError:
         repo.git.reset("--hard", "FETCH_HEAD")
     await update_requirements()
-    sandy = await event.edit(f"ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - تحـديث زدثــون\n**•─────────────────•**\n\n**•⎆┊تم التحـديث ⎌ بنجـاح**\n**•⎆┊جـارِ إعـادة تشغيـل بـوت زدثــون ⎋ **\n**•⎆┊انتظـࢪ مـن 2 - 1 دقيقـه . . .📟**")
-    await event.client.reload(sandy)
+    await event.edit(
+        "ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - تحـديث زدثــون\n"
+        "**•─────────────────•**\n\n"
+        "**•⎆┊تم التحـديث ⎌ بنجـاح**\n"
+        "**•⎆┊جـارِ إعـادة تشغيـل بـوت زدثــون ⎋**\n"
+        "**•⎆┊انتظـࢪ مـن 2 - 1 دقيقـه . . .📟**"
+    )
+    await event.client.reload()
 
 
-@zedub.zed_cmd(
-    pattern="تحديث البوت$",
-)
+@zedub.zed_cmd(pattern="تحديث البوت$")
 async def upstream(event):
+    """Handle bot update command."""
     if os.path.exists("config.py"):
         return await edit_delete(
             event,
-            f"**- أعتقد أنك على الوضـع الذاتي ..**\n**- للتحديث الذاتي ارسـل الامـر** `{cmdhd}تحديث`",
-        )
-    event = await edit_or_reply(event, f"ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - تحـديث زدثــون\n**•─────────────────•**\n\n**⪼ يتم تنصيب التحديث  انتظر 🌐 ،**")
-    off_repo = "https://github.com/ZThon-Back/ZUp"
-    os.makedirs("app")
-    os.chdir("app")
-    try:
-        txt = (
-            "`اووبـس .. لا يمكن لـ الإستمـرار بالتحديث بسبب "
-            + "حـدوث بعـض المشاكـل`\n\n**سجـل الاخطـاء:**\n"
+            f"**- أعتقد أنك على الوضـع الذاتي ..**\n"
+            f"**- للتحديث الذاتي ارسـل الامـر** `{cmdhd}تحديث`",
         )
 
-        repo = Repo()
-    except NoSuchPathError as error:
-        await event.edit(f"{txt}\n\n**- المسـار** {error} **غيـر مـوجـود؟!**")
-        return repo.__del__()
-    except GitCommandError as error:
-        await event.edit(f"{txt}\n**- خطـأ غيـر متـوقـع؟!**\n{error}")
-        return repo.__del__()
-    except InvalidGitRepositoryError:
-        repo = Repo.init()
-        origin = repo.create_remote("upstream", off_repo)
+    event = await edit_or_reply(
+        event,
+        "ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - تحـديث زدثــون\n"
+        "**•─────────────────•**\n\n"
+        "⏳ يتم تنصيب التحديث  انتظر 🌐",
+    )
+
+    # Ensure repository directory exists
+    if not os.path.exists(REPO_PATH):
+        os.makedirs(REPO_PATH)
+    os.chdir(REPO_PATH)
+
+    # Initialize or fetch repository
+    try:
+        repo = Repo(REPO_PATH)
+    except (InvalidGitRepositoryError, NoSuchPathError):
+        repo = Repo.init(REPO_PATH)
+        origin = repo.create_remote("upstream", OFF_REPO_URL)
         origin.fetch()
-        repo.create_head("master", origin.refs.main)
-        repo.heads.master.set_tracking_branch(origin.refs.main)
-        repo.heads.master.checkout(True)
-    with contextlib.suppress(BaseException):
-        repo.create_remote("upstream", off_repo)
-    zzz1 = await event.edit(f"ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - تحـديث زدثــون\n**•─────────────────•**\n\n**⇜ يتـم تحـديث بـوت زدثــون .. انتظـر . . .🌐**")
-    await asyncio.sleep(1)
-    zzz2 = await zzz1.edit("ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - تحـديث زدثــون\n**•─────────────────•**\n\n**⇜ يتـم تحـديث بـوت زدثــون .. انتظـر . . .🌐**\n\n%𝟷𝟶 ▬▭▭▭▭▭▭▭▭▭")
-    await asyncio.sleep(1)
-    zzz3 = await zzz2.edit("ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - تحـديث زدثــون\n**•─────────────────•**\n\n**⇜ يتـم تحـديث بـوت زدثــون .. انتظـر . . .🌐**\n\n%𝟸𝟶 ▬▬▭▭▭▭▭▭▭▭")
-    await asyncio.sleep(1)
-    zzz4 = await zzz3.edit("ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - تحـديث زدثــون\n**•─────────────────•**\n\n**⇜ يتـم تحـديث بـوت زدثــون .. انتظـر . . .🌐**\n\n%𝟹𝟶 ▬▬▬▭▭▭▭▭▭▭")
-    await asyncio.sleep(1)
-    zzz5 = await zzz4.edit("ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - تحـديث زدثــون\n**•─────────────────•**\n\n**⇜ يتـم تحـديث بـوت زدثــون .. انتظـر . . .🌐**\n\n%𝟺𝟶 ▬▬▬▬▭▭▭▭▭▭")
-    await asyncio.sleep(1)
-    zzz6 = await zzz5.edit("ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - تحـديث زدثــون\n**•─────────────────•**\n\n**⇜ يتـم تحـديث بـوت زدثــون .. انتظـر . . .🌐**\n\n%𝟻𝟶 ▬▬▬▬▬▭▭▭▭▭")
-    await asyncio.sleep(1)
-    zzz7 = await zzz6.edit("ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - تحـديث زدثــون\n**•─────────────────•**\n\n**⇜ يتـم تحـديث بـوت زدثــون .. انتظـر . . .🌐**\n\n%𝟼𝟶 ▬▬▬▬▬▬▭▭▭▭")
-    await asyncio.sleep(1)
-    zzz8 = await zzz7.edit("ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - تحـديث زدثــون\n**•─────────────────•**\n\n**⇜ يتـم تحـديث بـوت زدثــون .. انتظـر . . .🌐**\n\n%𝟽𝟶 ▬▬▬▬▬▬▬▭▭▭")
-    await asyncio.sleep(1)
-    zzz9 = await zzz8.edit("ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - تحـديث زدثــون\n**•─────────────────•**\n\n**⇜ يتـم تحـديث بـوت زدثــون .. انتظـر . . .🌐**\n\n%𝟾𝟶 ▬▬▬▬▬▬▬▬▭▭") 
-    await asyncio.sleep(1)
-    zzzz10 = await zzz9.edit("ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - تحـديث زدثــون\n**•─────────────────•**\n\n**⇜ يتـم تحـديث بـوت زدثــون .. انتظـر . . .🌐**\n\n%𝟿𝟶 ▬▬▬▬▬▬▬▬▬▭") 
-    await asyncio.sleep(1)
-    zzzz11 = await zzzz10.edit("ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - تحـديث زدثــون\n**•─────────────────•**\n\n**⇜ يتـم تحـديث بـوت زدثــون .. انتظـر . . .🌐**\n\n%𝟷𝟶𝟶 ▬▬▬▬▬▬▬▬▬▬💯") 
-    ac_br = repo.active_branch.name
-    ups_rem = repo.remote("upstream")
-    ups_rem.fetch(ac_br)
-    await update_bot(zzzz11, repo, ups_rem, ac_br)
+        default_branch = "main" if "main" in [ref.name for ref in origin.refs] else "master"
+        repo.create_head(default_branch, origin.refs[default_branch])
+        repo.heads[default_branch].set_tracking_branch(origin.refs[default_branch])
+        repo.heads[default_branch].checkout()
+    except GitCommandError as error:
+        await event.edit(f"❌ خطأ في Git:\n{error}")
+        return
+
+    # Display progress bar
+    for i in range(11):
+        await asyncio.sleep(1)  # Simulate progress delay
+        await show_progress(event, i, 10)
+
+    # Pull updates and reload bot
+    try:
+        ups_rem = repo.remote("upstream")
+        ac_br = repo.active_branch.name
+        ups_rem.fetch(ac_br)
+        await update_bot(event, repo, ups_rem, ac_br)
+    except Exception as e:
+        await event.edit(f"❌ حدث خطأ أثناء التحديث:\n{e}")
