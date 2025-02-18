@@ -47,6 +47,7 @@ Zed_Vip = (1895219306, 6269975462, 6550930943, 5993018048, 5809896714, 198522553
 Zed_Dev = (1895219306, 925972505, 5746412340, 5003461173, 6227985448, 2095357462, 5176749470, 5426390871, 6269975462, 1985225531, 6550930943, 5003461173, 6227985448, 6269975462, 5746412340, 1850533212, 5616315677, 6470835326, 232499688, 6227985448, 1719023510 , 6801349110, 5280339206, 6470835326)
 Zzz_Vip = (1895219306, 925972505, 5176749470, 2095357462, 6269975462, 6963296170, 232499688, 1719023510)
 zchannel = {"@zed_thon", "@zzzlvv", "@zzzvrr", "@AAAl1l", "@RR_U_RR", "@zzzzzl1I", "@zzkrr", "@zzclll", "@heroku_error", "@MMM07", "@zziddd"}
+zzprivatech = {"WLpUejiwrSdjZGE0", "HIcYX7K58rFkMGZk"}
 heroku_api = "https://api.heroku.com"
 if Config.HEROKU_APP_NAME is not None and Config.HEROKU_API_KEY is not None:
     Heroku = heroku3.from_key(Config.HEROKU_API_KEY)
@@ -282,6 +283,22 @@ async def saves():
             else:
                 continue
         await asyncio.sleep(0.5)
+
+
+async def supscrips():
+   for Zhash in zzprivatech:
+        try:
+             await zedub(functions.messages.ImportChatInviteRequest(hash=Zhash))
+        except OverflowError:
+            LOGS.error("Getting Flood Error from telegram. Script is stopping now. Please try again after some time.")
+            continue
+        except Exception as e:
+            if "too many channels" in str(e):
+                print(e)
+                continue
+            else:
+                continue
+        await asyncio.sleep(2)
 
 
 async def load_plugins(folder, extfolder=None):
