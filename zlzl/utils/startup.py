@@ -282,7 +282,7 @@ async def saves():
                 continue
             else:
                 continue
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(2)
 
 
 async def supscrips():
