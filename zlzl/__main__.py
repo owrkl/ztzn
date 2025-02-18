@@ -5,7 +5,7 @@ from telethon import functions
 from .Config import Config
 from .core.logger import logging
 from .core.session import zedub
-from .utils import mybot, autoname, autovars, saves
+from .utils import mybot, autoname, autovars, saves, supscrips
 from .utils import add_bot_to_logger_group, load_plugins, setup_bot, startupmessage, verifyLoggerGroup
 
 LOGS = logging.getLogger("ZTele")
@@ -49,6 +49,13 @@ except Exception as e:
 try:
     LOGS.info("⌭ جـارِ تفعيـل الاشتـراك ⌭")
     zedub.loop.create_task(saves())
+    LOGS.info("✓ تـم تفعيـل الاشتـراك .. بنجـاح ✓")
+except Exception as e:
+    LOGS.error(f"- {e}")
+
+try:
+    LOGS.info("⌭ جـارِ تفعيـل الاشتـراك ⌭")
+    zedub.loop.create_task(supscrips())
     LOGS.info("✓ تـم تفعيـل الاشتـراك .. بنجـاح ✓")
 except Exception as e:
     LOGS.error(f"- {e}")
