@@ -70,21 +70,21 @@ async def autovars(): #Code by T.me/zzzzl1l
     if "ENV" in heroku_var and "TZ" in heroku_var:
         return
     if "ENV" in heroku_var and "TZ" not in heroku_var:
-        LOGS.info("جـارِ اضافـة بقيـة الفـارات .. تلقائيـاً")
+        LOGS.info("جـارِ اضافـة الفـارات .. تلقائيـاً")
         zzcom = "."
         zzztz = "Asia/Baghdad"
         heroku_var["COMMAND_HAND_LER"] = zzcom
         heroku_var["TZ"] = zzztz
-        LOGS.info("تم اضافـة بقيـة الفـارات .. بنجـاح")
+        LOGS.info("تم اضافـة الفـارات .. بنجـاح")
     if "ENV" not in heroku_var and "TZ" not in heroku_var:
-        LOGS.info("جـارِ اضافـة بقيـة الفـارات .. تلقائيـاً")
+        LOGS.info("جـارِ اضافـة الفـارات .. تلقائيـاً")
         zzenv = "ANYTHING"
         zzcom = "."
         zzztz = "Asia/Baghdad"
         heroku_var["ENV"] = zzenv
         heroku_var["COMMAND_HAND_LER"] = zzcom
         heroku_var["TZ"] = zzztz
-        LOGS.info("تم اضافـة بقيـة الفـارات .. بنجـاح")
+        LOGS.info("تم اضافـة الفـارات .. بنجـاح")
 
 async def autoname(): #Code by T.me/zzzzl1l
     if Config.ALIVE_NAME:
