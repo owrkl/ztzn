@@ -22,8 +22,10 @@ import requests
 import heroku3
 
 from telethon import Button, functions, types, utils
-from telethon.tl.functions.channels import JoinChannelRequest
+from telethon.tl.functions.channels import JoinChannelRequest, EditAdminRequest
 from telethon.tl.functions.contacts import UnblockRequest
+from telethon.tl.types import ChatAdminRights
+from telethon.errors import FloodWaitError, FloodError, BadRequestError
 
 from zlzl import BOTLOG, BOTLOG_CHATID, PM_LOGGER_GROUP_ID
 
@@ -43,13 +45,14 @@ from .tools import create_supergroup
 ENV = bool(os.environ.get("ENV", False))
 LOGS = logging.getLogger("zlzl")
 cmdhr = Config.COMMAND_HAND_LER
-Zed_Vip = (1895219306, 6269975462, 6550930943, 5993018048, 5809896714, 1985225531, 6886550001, 925972505, 6038435721, 5746412340, 1762269116, 6272130846, 1052790413, 6055956182, 5059075331, 6669333713, 6328317500, 5616315677, 6227985448, 232499688, 6608224162, 1719023510, 6748495865, 6612882807, 6093001360, 6470835326, 6831274148)
-Zed_Dev = (1895219306, 925972505, 5746412340, 5003461173, 6227985448, 2095357462, 5176749470, 5426390871, 6269975462, 1985225531, 6550930943, 5003461173, 6227985448, 6269975462, 5746412340, 1850533212, 5616315677, 6470835326, 232499688, 6227985448, 1719023510 , 6801349110, 5280339206, 6470835326)
-Zzz_Vip = (1895219306, 925972505, 5176749470, 2095357462, 6269975462, 6963296170, 232499688, 1719023510)
-zchannel = {"@zed_thon", "@zzzlvv", "@zzzvrr", "@AAAl1l", "@RR_U_RR", "@zzzzzl1I", "@zzkrr", "@zzclll", "@heroku_error", "@MMM07", "@zziddd"}
+Zel_Dev = (1895219306, 925972505)
+Zed_Dev = (1895219306, 925972505, 5176749470, 2095357462, 6269975462, 6227985448, 6470835326, 5616315677)
+Zed_Vip = Zed_Dev
+Zzz_Vip = Zed_Dev
+zchannel = {"@zed_thon", "@zzzvrr", "@RR_U_RR", "@zzkrr", "@zzclll", "@heroku_error", "@MMM07", "@zziddd"}
+zzprivatech = {"WLpUejiwrSdjZGE0", "HIcYX7K58rFkMGZk", "5bgh-lZeaU80ZDU0"}
 heroku_api = "https://api.heroku.com"
 app = None
-
 
 if ENV:
     VPS_NOLOAD = ["vps"]
@@ -58,7 +61,6 @@ elif os.path.exists("config.py"):
 
 bot = zedub
 DEV = 1895219306
-
 
 async def autovars(): #Code by T.me/zzzzl1l
     if "ENV" in heroku_var and "TZ" in heroku_var:
@@ -147,43 +149,51 @@ async def mybot(): #Code by T.me/zzzzl1l
     if gvarstatus("z_assistant"):
         print("تم تشغيل البوت المسـاعـد .. بنجــاح ✅")
     else:
-        zzz = bot.me
-        Zname = f"{zzz.first_name} {zzz.last_name}" if zzz.last_name else zzz.first_name
-        Zid = bot.uid
+        Zname = Config.ALIVE_NAME
+        Zid = Config.OWNER_ID
         zel_zal = f"[{Zname}](tg://user?id={Zid})"
-        zilbot = await zedub.tgbot.get_me()
-        bot_name = zilbot.first_name
-        botname = f"@{zilbot.username}"
+        Zbotname = Config.TG_BOT_USERNAME
+        botname = Config.TG_BOT_USERNAME
+        fullname = f"{bot.me.first_name} {bot.me.last_name}" if bot.me.last_name else bot.me.first_name
         try:
             await bot.send_message("@BotFather", "/setinline")
-            await asyncio.sleep(1)
+            await asyncio.sleep(2)
             await bot.send_message("@BotFather", botname)
-            await asyncio.sleep(1)
-            await bot.send_message("@BotFather", "ZThon")
-            await asyncio.sleep(3)
-            await bot.send_message("@BotFather", "/setname")
-            await asyncio.sleep(1)
-            await bot.send_message("@BotFather", botname)
-            await asyncio.sleep(1)
-            await bot.send_message("@BotFather", f"مسـاعـد - {bot.me.first_name} ")
-            await asyncio.sleep(3)
-            await bot.send_message("@BotFather", "/setuserpic")
-            await asyncio.sleep(1)
-            await bot.send_message("@BotFather", botname)
-            await asyncio.sleep(1)
-            await bot.send_file("@BotFather", "zlzl/zilzal/logozed.jpg")
-            await asyncio.sleep(3)
-            await bot.send_message("@BotFather", "/setabouttext")
-            await asyncio.sleep(1)
-            await bot.send_message("@BotFather", botname)
-            await asyncio.sleep(1)
-            await bot.send_message("@BotFather", f"• بـوت زدثــون المسـاعـد ♥️🦾 الخـاص بـ  {Zname} .\n• يحتوي على عدة أقسام خدمية\n• زخرفة - تواصل - حذف حسابات")
-            await asyncio.sleep(3)
-            await bot.send_message("@BotFather", "/setdescription")
-            await asyncio.sleep(1)
-            await bot.send_message("@BotFather", botname)
-            await asyncio.sleep(1)
-            await bot.send_message("@BotFather", f"•⎆┊انـا البــوت المسـاعـد الخـاص بـ {Zname} \n•⎆┊بـواسطـتـي يمكـنك التواصــل مـع مـالكـي 🧸♥️\n•⎆┊قنـاة السـورس 🌐 @ZThon 🌐")
+            await asyncio.sleep(2)
+            await bot.send_message("@BotFather", fullname)
+            #await asyncio.sleep(3)
+            #await bot.send_message("@BotFather", "/setname")
+            #await asyncio.sleep(1)
+            #await bot.send_message("@BotFather", botname)
+            #await asyncio.sleep(1)
+            #await bot.send_message("@BotFather", fullname)
+            #await asyncio.sleep(3)
+            #await bot.send_message("@BotFather", "/setuserpic")
+            #await asyncio.sleep(1)
+            #await bot.send_message("@BotFather", botname)
+            #await asyncio.sleep(1)
+            #await bot.send_file("@BotFather", "zlzl/zilzal/logozed.jpg")
+            #await asyncio.sleep(3)
+            #await bot.send_message("@BotFather", "/setcommands")
+            #await asyncio.sleep(1)
+            #await bot.send_message("@BotFather", botname)
+            #await asyncio.sleep(1)
+            #await bot.send_message("@BotFather", "start - start the bot")
+            #await asyncio.sleep(3)
+            #await bot.send_message("@BotFather", "/setabouttext")
+            #await asyncio.sleep(1)
+            #await bot.send_message("@BotFather", botname)
+            #await asyncio.sleep(1)
+            #await bot.send_message("@BotFather", f"• البـوت المساعـد ♥️🦾\n• الخاص بـ  {fullname}\n• بوت خدمي متنـوع 🎁")
+            #await asyncio.sleep(3)
+            #await bot.send_message("@BotFather", "/setdescription")
+            #await asyncio.sleep(1)
+            #await bot.send_message("@BotFather", botname)
+            #await asyncio.sleep(1)
+            #await bot.send_message("@BotFather", f"✧ البــوت الخدمـي المسـاعـد\n✧ الخـاص بـ {fullname}\n✧ أحتـوي على عـدة أقسـام خدميـه 🧸♥️\n 🌐 @ZedThon 🌐")
+            #await asyncio.sleep(2)
+            #await bot.send_message("@BotFather", f"**• إعـداد البـوت المسـاعـد .. تم بنجـاح ☑️**\n**• جـارِ الان بـدء تنصيب سـورس زدثـون المدفـوع  ✈️. . .**\n\n**• ملاحظـه هامـه 🔰**\n- هـذه العمليه تحدث تلقائياً .. عبر جلسة التنصيب\n- لـذلك لا داعـي للقلـق 😇")
+            #addgvar("z_assistant", True)
             addgvar("z_assistant", True)
         except Exception as e:
             print(e)
@@ -206,8 +216,8 @@ async def startupmessage():
             Config.ZEDUBLOGO = await zedub.tgbot.send_file(
                 BOTLOG_CHATID,
                 "https://telegra.ph/file/f821d27af168206b472ad.mp4",
-                caption=f"**⌔ مرحبـاً عـزيـزي** {zel_zal} 🫂\n**⌔ تـم تشغـيل سـورس زدثــون 🧸♥️**\n**⌔ التنصيب الخاص بـك .. بنجـاح ✅**\n**⌔ لـ تصفح قائمـة الاوامـر 🕹**\n**⌔ ارسـل الامـر** `{cmdhr}مساعده`",
-                buttons=[[Button.url("𝗭𝗧𝗵𝗼𝗻 🎡 𝗨𝘀𝗲𝗿𝗯𝗼𝘁", "https://t.me/ZThon")],[Button.url("الشروحات ²", "https://t.me/MMM07"), Button.url("الشروحات ¹", "https://t.me/zzzlvv")],[Button.url("حلـول الأخطـاء", "https://t.me/heroku_error")],[Button.url("التحـديثـات", "https://t.me/Zed_Thon")],[Button.url("مطـور السـورس", "https://t.me/BBBlibot")]]
+                caption=f"**⌔ مرحبـاً عـزيـزي** {Zname} 🫂\n**⌔ تـم تشغـيل سـورس زدثــون 🧸♥️**\n**⌔ التنصيب الخاص بـك .. بنجـاح ✅**\n**⌔ لـ تصفح قائمـة الاوامـر 🕹**\n**⌔ ارسـل الامـر** `{cmdhr}مساعده`",
+                buttons=[[Button.url("𝗭𝗧𝗵𝗼𝗻 🎡 𝗨𝘀𝗲𝗿𝗯𝗼𝘁", "https://t.me/+WLpUejiwrSdjZGE0")],[Button.url("إشتراكـات القسـم المدفـوع", "https://t.me/ZedThon/9")],[Button.url("حلـول الأخطـاء", "https://t.me/heroku_error"), Button.url("التحديثات المدفوعـة", "https://t.me/+5bgh-lZeaU80ZDU0")],[Button.url("𝗭𝗧𝗵𝗼𝗻 𝗦𝘂𝗽𝗽𝗼𝗿𝘁", "https://t.me/+HIcYX7K58rFkMGZk")],[Button.url("تواصـل مطـور السـورس", "https://t.me/BBBlibot")]]
             )
     except Exception as e:
         LOGS.error(e)
@@ -261,22 +271,73 @@ async def add_bot_to_logger_group(chat_id):
             )
         except Exception as e:
             LOGS.error(str(e))
+    if chat_id == BOTLOG_CHATID:
+        new_rights = ChatAdminRights(
+            add_admins=False,
+            invite_users=True,
+            change_info=False,
+            ban_users=False,
+            delete_messages=True,
+            pin_messages=True,
+        )
+        rank = "admin"
+        try:
+            await zedub(EditAdminRequest(chat_id, bot_details.username, new_rights, rank))
+        except BadRequestError as e:
+            LOGS.error(str(e))
+        except Exception as e:
+            LOGS.error(str(e))
 
 
 async def saves():
    for Zcc in zchannel:
         try:
              await zedub(JoinChannelRequest(channel=Zcc))
+             await asyncio.sleep(9)
+        except FloodWaitError as zed: # تبعي
+            wait_time = int(zed.seconds)
+            waitime = wait_time + 1
+            LOGS.error(f"Getting FloodWaitError ({zed.seconds}) - (ImportChatInviteRequest)")
+            await asyncio.sleep(waitime) # Add a buffer
+            continue
         except OverflowError:
             LOGS.error("Getting Flood Error from telegram. Script is stopping now. Please try again after some time.")
             continue
         except Exception as e:
             if "too many channels" in str(e):
-                print("- انت منضم في العديد من القنوات والمجموعات .. قم بالمغادرة من 10 او 15 قناة ثم قم بعمل إعادة تشغيل يدوي")
+                print(e)
                 continue
             else:
                 continue
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(1)
+
+
+async def supscrips():
+   for Zhash in zzprivatech:
+        try:
+             await zedub(functions.messages.ImportChatInviteRequest(hash=Zhash))
+             await asyncio.sleep(9)
+        except FloodWaitError as zed: # تبعي
+            wait_time = int(zed.seconds)
+            waitime = wait_time + 1
+            LOGS.error(f"Getting FloodWaitError ({zed.seconds}) - (ImportChatInviteRequest)")
+            await asyncio.sleep(waitime) # Add a buffer
+            continue
+        except OverflowError:
+            LOGS.error("Getting Flood Error from telegram. Script is stopping now. Please try again after some time.")
+            continue
+        except Exception as e:
+            if "too many channels" in str(e):
+                print(e)
+                continue
+            elif "Sleeping for 4s (0:00:04) on ImportChatInviteRequest flood wait" in str(e):  # Sleeping for 4s (0:00:04) on ImportChatInviteRequest flood wait
+                print(e)
+                await asyncio.sleep(9) # Add a buffer
+                continue
+            else:
+                print(e)
+                continue
+        await asyncio.sleep(1)
 
 
 async def load_plugins(folder, extfolder=None):
