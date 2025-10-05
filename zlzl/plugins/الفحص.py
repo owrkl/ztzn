@@ -55,8 +55,6 @@ async def zed_alive(event):
         mention=mention,
         uptime=uptime,
         zedda=zzd,
-        zzd=zzd,
-        zzt=zzt,
         telever=version.__version__,
         zdver=zedversion,
         pyver=python_version(),
