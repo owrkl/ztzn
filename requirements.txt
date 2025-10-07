@@ -1,3 +1,4 @@
+Cython
 lxml
 Telethon
 telethon-session-sqlalchemy
